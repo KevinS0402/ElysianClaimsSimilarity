@@ -8,18 +8,14 @@ let genAI;
 let startupStatus = "Initializing...";
 
 try {
-  // 1. Local Development (Uses your downloaded JSON file)
   if (fs.existsSync('./serviceAccountKey.json')) {
     const serviceAccount = JSON.parse(fs.readFileSync('./serviceAccountKey.json', 'utf8'));
     initializeApp({ credential: cert(serviceAccount) });
-  } 
-  // 2. Cloud Run (Uses Environment Variables we are about to set)
-  else if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
+  } else if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
     initializeApp({
       credential: cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        // Cloud Run sometimes escapes newlines in keys, this fixes it:
         privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
       })
     });
@@ -42,19 +38,31 @@ try {
 
 const port = parseInt(process.env.PORT || "8080", 10);
 
+// --- NEW CORS CONFIGURATION ---
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*", // Allows requests from any origin (like localhost)
+  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 Bun.serve({
   port: port,
   hostname: "0.0.0.0", 
   async fetch(req) {
     const url = new URL(req.url);
 
+    // 1. Handle the Browser's CORS Preflight Request
+    if (req.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders });
+    }
+
     if (url.pathname === "/" && req.method === "GET") {
-      return Response.json({ serverStatus: startupStatus });
+      return Response.json({ serverStatus: startupStatus }, { headers: corsHeaders });
     }
 
     if (url.pathname === "/search" && req.method === "POST") {
       if (startupStatus !== "Healthy") {
-         return Response.json({ success: false, error: startupStatus }, { status: 500 });
+         return Response.json({ success: false, error: startupStatus }, { status: 500, headers: corsHeaders });
       }
 
       try {
@@ -77,14 +85,14 @@ Bun.serve({
            return { id: doc.id, ...data };
         });
 
-        return Response.json({ success: true, results: matches });
+        return Response.json({ success: true, results: matches }, { headers: corsHeaders });
 
       } catch (error) {
         console.error("Search failed:", error);
-        return Response.json({ success: false, error: error.message }, { status: 500 });
+        return Response.json({ success: false, error: error.message }, { status: 500, headers: corsHeaders });
       }
     }
-    return new Response("Endpoint Not Found", { status: 404 });
+    return new Response("Endpoint Not Found", { status: 404, headers: corsHeaders });
   }
 });
 
