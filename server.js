@@ -7,46 +7,52 @@ let db;
 let genAI;
 let startupStatus = "Initializing...";
 
-// 1. Safe Initialization: Catch errors but DO NOT crash the server
 try {
+  // 1. Local Development (Uses your downloaded JSON file)
   if (fs.existsSync('./serviceAccountKey.json')) {
     const serviceAccount = JSON.parse(fs.readFileSync('./serviceAccountKey.json', 'utf8'));
     initializeApp({ credential: cert(serviceAccount) });
+  } 
+  // 2. Cloud Run (Uses Environment Variables we are about to set)
+  else if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        // Cloud Run sometimes escapes newlines in keys, this fixes it:
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      })
+    });
   } else {
-    // Cloud Run will automatically use Default Credentials
-    initializeApp();
+    throw new Error("Missing Firebase credentials!");
   }
+  
   db = getFirestore();
   
   if (!process.env.GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY environment variable is missing in Cloud Run!");
+    throw new Error("GEMINI_API_KEY environment variable is missing!");
   }
   genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   
   startupStatus = "Healthy";
 } catch (error) {
   console.error("Startup Failure:", error);
-  startupStatus = error.message; // Save the error to display in the browser
+  startupStatus = error.message;
 }
 
 const port = parseInt(process.env.PORT || "8080", 10);
 
-// 2. Start the server regardless of initialization errors
 Bun.serve({
   port: port,
   hostname: "0.0.0.0", 
   async fetch(req) {
     const url = new URL(req.url);
 
-    // --- NEW HEALTH CHECK ROUTE ---
-    // You can visit your Cloud Run URL in a browser to see if it worked
     if (url.pathname === "/" && req.method === "GET") {
       return Response.json({ serverStatus: startupStatus });
     }
 
-    // --- SEARCH ROUTE ---
     if (url.pathname === "/search" && req.method === "POST") {
-      // If the server failed to boot properly, return the error to the app
       if (startupStatus !== "Healthy") {
          return Response.json({ success: false, error: startupStatus }, { status: 500 });
       }
