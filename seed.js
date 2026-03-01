@@ -25,7 +25,7 @@ async function seedDatabase() {
     
     // Call the API to generate the vector
     const result = await model.embedContent(textToEmbed);
-    const embeddingVector = result.embedding.values;
+    const queryVector = result.embedding.values.slice(0, 768);
 
     console.log(`Successfully generated vector of length: ${embeddingVector.length}`);
     console.log("Saving to Firestore...");

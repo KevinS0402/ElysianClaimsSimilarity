@@ -61,7 +61,7 @@ Bun.serve({
         const body = await req.json();
         const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
         const result = await model.embedContent(body.query);
-        const queryVector = result.embedding.values;
+        const queryVector = result.embedding.values.slice(0, 768);
 
         const claimsRef = db.collection('claims');
         const vectorQuery = claimsRef.findNearest(
