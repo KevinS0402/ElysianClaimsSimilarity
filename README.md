@@ -2,7 +2,7 @@
 
 **[Try the Live Demo](https://claims-similarity-finder.web.app)**
 
-An AI-powered semantic search engine designed for insurance adjusters. Instead of relying on rigid keyword searches, this application leverages Google's Gemini AI to understand the *meaning* and *context* of unstructured claim descriptions, instantly matching them with the most semantically similar historical claims in the database.
+An AI-powered semantic search engine designed for insurance adjusters. Instead of relying on rigid keyword searches, this application leverages Google's Gemini AI to understand the *meaning* and *context* of unstructured claim descriptions, instantly matching them with the most semantically similar historical claims in the database. To use it, just type in your query and hit the *"Find Similar Claims"* button!
 
 ## Tech Stack
 
