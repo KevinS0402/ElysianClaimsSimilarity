@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDjbA-aIXJSmVru4bq1WZX1tcxBg1jqUkI",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: "claims-similarity-finder.firebaseapp.com",
   projectId: "claims-similarity-finder",
   storageBucket: "claims-similarity-finder.firebasestorage.app",

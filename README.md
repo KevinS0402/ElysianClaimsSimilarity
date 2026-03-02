@@ -1,50 +1,18 @@
-# Welcome to your Expo app 👋
+# 🔍 AI Claims Similarity Finder
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**[Try the Live Demo](https://claims-similarity-finder.web.app)**
 
-## Get started
+An AI-powered semantic search engine designed for insurance adjusters. Instead of relying on rigid keyword searches, this application leverages Google's Gemini AI to understand the *meaning* and *context* of unstructured claim descriptions, instantly matching them with the most semantically similar historical claims in the database.
 
-1. Install dependencies
+## Tech Stack
 
-   ```bash
-   npm install
-   ```
+* **Frontend:** React Native Web (Expo)
+* **Backend:** Bun (Deployed via Google Cloud Run)
+* **Database:** Firebase / Firestore (Native Vector Search)
+* **AI / Embeddings:** Gemini API (`gemini-embedding-001`)
+* **Hosting:** Firebase Hosting
 
-2. Start the app
+## Key Features
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+* **Semantic Vector Search:** Translates natural language queries into 768-dimension mathematical vectors to find conceptual matches (e.g., matching "wet shoes" with "slip and fall" claims).
+* **Matryoshka Representation Learning:** Dynamically truncates Gemini's 3,072-dimension vectors to 768 dimensions to bypass Firestore constraints without sacrificing search
